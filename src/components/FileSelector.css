@@ -1,0 +1,14 @@
+.Selector {
+    width: 60vw;
+    height: 10vh;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(77, 77, 77);
+    color: azure;
+    border-radius: 1rem;
+    position: absolute;
+    z-index: 100;
+}
