@@ -13,10 +13,11 @@ function App() {
     const [saturation, setSaturation] = useState(0);
     const [highlight, setHighlight] = useState(0);
     const [exposure, setExposure] = useState(0);
+    const [dehaze, setDehaze] = useState(0);
     const [greyScale, setGreyScale] = useState(false);
-    const [redChannelWeight, setRedChannelWeight] = useState(0);
-    const [greenChannelWeight, setGreenChannelWeight] = useState(0);
-    const [blueChannelWeight, setBlueChannelWeight] = useState(0);
+    const [redChannelWeight, setRedChannelWeight] = useState(33);
+    const [greenChannelWeight, setGreenChannelWeight] = useState(33);
+    const [blueChannelWeight, setBlueChannelWeight] = useState(33);
 
     return (
         <div className="App">
@@ -34,8 +35,9 @@ function App() {
                 redChannelWeight={redChannelWeight}
                 greenChannelWeight={greenChannelWeight}
                 blueChannelWeight={blueChannelWeight}
+                dehaze={dehaze}
             />
-            <Controllers
+            {/* <Controllers
                 brightness={brightness}
                 contrast={contrast}
                 exposure={exposure}
@@ -49,6 +51,7 @@ function App() {
                 redChannelWeight={redChannelWeight}
                 greenChannelWeight={greenChannelWeight}
                 blueChannelWeight={blueChannelWeight}
+                dehaze={dehaze}
                 setBrightness={setBrightness}
                 setContrast={setContrast}
                 setHighlight={setHighlight}
@@ -62,7 +65,8 @@ function App() {
                 setRedChannelWeight={setRedChannelWeight}
                 setGreenChannelWeight={setGreenChannelWeight}
                 setBlueChannelWeight={setBlueChannelWeight}
-            />
+                setDehaze={setDehaze}
+            /> */}
         </div>
     );
 }

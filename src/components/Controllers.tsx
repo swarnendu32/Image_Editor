@@ -30,6 +30,8 @@ export interface ImageProps {
     setGreenChannelWeight: React.Dispatch<React.SetStateAction<number>>;
     blueChannelWeight: number;
     setBlueChannelWeight: React.Dispatch<React.SetStateAction<number>>;
+    dehaze: number;
+    setDehaze: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Controllers: React.FC<ImageProps> = ({
@@ -46,6 +48,7 @@ const Controllers: React.FC<ImageProps> = ({
     redChannelWeight,
     greenChannelWeight,
     blueChannelWeight,
+    dehaze,
     setBrightness,
     setContrast,
     setHighlight,
@@ -59,6 +62,7 @@ const Controllers: React.FC<ImageProps> = ({
     setRedChannelWeight,
     setGreenChannelWeight,
     setBlueChannelWeight,
+    setDehaze
 }) => {
     const brightnessOnChangeHandler = (event: any) => {
         setBrightness(event.target.value);
@@ -90,6 +94,9 @@ const Controllers: React.FC<ImageProps> = ({
     const greyScaleOnChangeHandler = (event: any) => {
         setGreyScale(!greyScale);
     };
+    const dehazeOnChangeHandler = (event: any) => {
+        setDehaze(event.target.value);
+    };
     const redChannelWeightOnChangeHandler = (event: any) => {
         setRedChannelWeight(event.target.value);
     };
@@ -119,6 +126,7 @@ const Controllers: React.FC<ImageProps> = ({
                         greenChannelWeight,
                         blueChannelWeight,
                         greyScale,
+                        dehaze
                     });
                 }}
             >
@@ -126,6 +134,7 @@ const Controllers: React.FC<ImageProps> = ({
             </button>
             <input
                 type="radio"
+                onChange={greyScaleOnChangeHandler}
                 onClick={greyScaleOnChangeHandler}
                 title="GreyScaling"
                 checked={greyScale}
@@ -201,6 +210,14 @@ const Controllers: React.FC<ImageProps> = ({
                 min={-100}
                 max={100}
                 defaultValue={exposure}
+            />
+            <RangeSlider
+                name="dehaze"
+                id="dehaze"
+                handleChange={dehazeOnChangeHandler}
+                min={-100}
+                max={100}
+                defaultValue={dehaze}
             />
             <RangeSlider
                 name="redChannelWeight"

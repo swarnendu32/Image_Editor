@@ -1,23 +1,4 @@
-import { Props } from "../components/CanvasFrame";
-
-export function generateFragmentShader({
-    brightness,
-    contrast,
-    sharpness,
-    shadow,
-    saturation,
-    exposure,
-    highlight,
-    warmth,
-    tint,
-    redChannelWeight,
-    greenChannelWeight,
-    blueChannelWeight,
-    greyScale,
-    dehaze,
-}: Props) {
-    const fragmentShader = `
-        precision highp float;
+precision highp float;
         varying vec2 texCoords;
         uniform sampler2D textureSampler;
         uniform vec2 sourceSize;
@@ -66,73 +47,55 @@ export function generateFragmentShader({
             vec4 blurred = 1.0 * tex00 + 4.0 * tex10 + 6.0 * tex20 + 4.0 * tex30 + 1.0 * tex40 + 4.0 * tex01 + 16.0 * tex11 + 24.0 * tex21 + 16.0 * tex31 + 4.0 * tex41 + 6.0 * tex02 + 24.0 * tex12 + 36.0 * tex22 + 24.0 * tex32 + 6.0 * tex42 + 4.0 * tex03 + 16.0 * tex13 + 24.0 * tex23 + 16.0 * tex33 + 4.0 * tex43 + 1.0 * tex04 + 4.0 * tex14 + 6.0 * tex24 + 4.0 * tex34 + 1.0 * tex44;
             blurred /= 256.0;
 
-            tex += (tex - blurred) * ${sharpness / 50};
+            tex += (tex - blurred) * 0.0;
 
             vec3 desaturated = vec3(dot(saturationVector, tex.rgb));
-            vec3 mixed = mix(desaturated, tex.rgb, ${saturation / 100 + 1.0});
+            vec3 mixed = mix(desaturated, tex.rgb, 1.28);
             vec4 color = vec4(mixed, tex.a);
 
-            color.r += ${warmth / 500};
-            color.b -= ${warmth / 500};
+            color.r += 0.0;
+            color.b -= 0.0;
 
-            color.rgb = (color.rgb - 0.5) * ${contrast / 150 + 0.999} + 0.5;
+            color.rgb = (color.rgb - 0.5) * 0.919 + 0.5;
 
             vec3 texColor = color.rgb;
             float luminance = dot(texColor, saturationVector);
-            float adjustment = 1.0 + ${
-                brightness / 200
-            } * gaussian(luminance - 0.5);
+            float adjustment = 1.0 + 0.15 * gaussian(luminance - 0.5);
             vec3 adjustedColor = texColor * adjustment * maxBrightness;
             color.rgb = clamp(adjustedColor, 0.0, 1.0);
 
-            color.rgb = color.rgb * pow(2.0, ${exposure / 200});
+            color.rgb = color.rgb * pow(2.0, 0.0);
 
-            float highlightAdjustment = pow(luminance, ${-highlight / 500});
+            float highlightAdjustment = pow(luminance, 0.0);
             color.rgb *= highlightAdjustment;
 
             float colorValue = sqrt(pow(color.r, 2.0) + pow(color.g, 2.0) + pow(color.b, 2.0));
             float canvasColorSpace = colorValue / sqrt(pow(255.0, 2.0) + pow(255.0, 2.0) + pow(255.0, 2.0));
             if(canvasColorSpace < 0.5) {
-                adjustedColor = vec3(color.r + ${shadow / 800}, color.g + ${
-        shadow / 800
-    }, color.b + ${shadow / 800});
+                adjustedColor = vec3(color.r + 0.0, color.g + 0.0, color.b + 0.0);
             }
             color.rgb = clamp(adjustedColor, 0.0, 1.0);
 
             float redTint = 0.0;
             float greenTint = 0.0;
-            if (${tint / 500} > 0.0) {
-                redTint = ${tint / 500 > 0.0 ? tint / 500 : 0.0};
-            } else if (${tint / 500} < 0.0) {
-                greenTint = ${tint / 500 < 0.0 ? (tint / 500) * -1.0 : 0.0};
+            if (0.0 > 0.0) {
+                redTint = 0.0;
+            } else if (0.0 < 0.0) {
+                greenTint = -0.0;
             }
             color.r += redTint;
             color.g += greenTint;
             color.b += (redTint - greenTint) / 2.0;
             color.rgb = clamp(color.rgb, 0.0, 1.0);
 
-            if(${greyScale}){
-                color.rgb = vec3(color.r * ${
-                    redChannelWeight / 100
-                } + color.g * ${greenChannelWeight / 100} + color.b * ${
-        blueChannelWeight / 100
-    });
+            if(true){
+                color.rgb = vec3(color.r * 0.33 + color.g * 0.33 + color.b * 0.33);
             }
             
             float hazeColor = dot(color.rgb, vec3(1.0));
-            float atmosphericLight = hazeColor * ${dehaze / 500};
+            float atmosphericLight = hazeColor * -0.032;
             color.rgb = color.rgb - atmosphericLight;
             color.rgb = clamp(color.rgb, 0.0, 1.0);
 
             gl_FragColor = color;
         }
-    `;
-
-    // const folderPath = path.join(__dirname, "filters");
-    // if (!fs.existsSync(folderPath)) {
-    //     fs.mkdirSync(folderPath);
-    // }
-    // const filePath = path.join(folderPath, 'generatedShader.glsl');
-    // fs.writeFileSync(filePath, fragmentShader, 'utf-8');
-    console.log(fragmentShader);
-}

@@ -15,6 +15,7 @@ interface WebGLCanvasProps {
     redChannelWeight: number;
     greenChannelWeight: number;
     blueChannelWeight: number;
+    dehaze: number;
 }
 
 const Canvas: React.FC<WebGLCanvasProps> = ({
@@ -32,6 +33,7 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
     redChannelWeight,
     greenChannelWeight,
     blueChannelWeight,
+    dehaze,
 }) => {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -88,8 +90,8 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
 
             if (needResize) {
                 // Make the canvas the same size
-                canvas.width = displayWidth * 5.46;
-                canvas.height = displayHeight * 5.5;
+                canvas.width = displayWidth * 2.5;
+                canvas.height = displayHeight * 2.57;
             }
 
             return needResize;
@@ -116,125 +118,106 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
 
             const fsSource = `
             precision highp float;
-
             varying vec2 texCoords;
             uniform sampler2D textureSampler;
             uniform vec2 sourceSize;
-            uniform float brightness;
-            uniform float contrast;
-            uniform float sharpen;
-            uniform float tint;
-            uniform float warmth;
-            uniform float shadow;
-            uniform float saturation;
-            uniform float highlight;
-            uniform float exposure;
             uniform float blur;
-            uniform float greyScale;
-            uniform float redChannelWeight;
-            uniform float greenChannelWeight;
-            uniform float blueChannelWeight;
             vec3 saturationVector = vec3(0.299, 0.587, 0.114);
             const float maxBrightness = 1.0;
             const float sigma = 0.2;
             float gaussian(float x) {
                 return exp(-(x * x) / (2.0 * sigma * sigma));
             }
-
             void main() {
                 vec2 off = sourceSize * blur;
                 vec2 off2 = off * 2.0;
-
-                // Sharpness
+            
                 vec4 tex00 = texture2D(textureSampler, texCoords + vec2(-off2.x, -off2.y));
                 vec4 tex10 = texture2D(textureSampler, texCoords + vec2(-off.x, -off2.y));
                 vec4 tex20 = texture2D(textureSampler, texCoords + vec2(0.0, -off2.y));
                 vec4 tex30 = texture2D(textureSampler, texCoords + vec2(off.x, -off2.y));
                 vec4 tex40 = texture2D(textureSampler, texCoords + vec2(off2.x, -off2.y));
-
+            
                 vec4 tex01 = texture2D(textureSampler, texCoords + vec2(-off2.x, -off.y));
                 vec4 tex11 = texture2D(textureSampler, texCoords + vec2(-off.x, -off.y));
                 vec4 tex21 = texture2D(textureSampler, texCoords + vec2(0.0, -off.y));
                 vec4 tex31 = texture2D(textureSampler, texCoords + vec2(off.x, -off.y));
                 vec4 tex41 = texture2D(textureSampler, texCoords + vec2(off2.x, -off.y));
-
+            
                 vec4 tex02 = texture2D(textureSampler, texCoords + vec2(-off2.x, 0.0));
                 vec4 tex12 = texture2D(textureSampler, texCoords + vec2(-off.x, 0.0));
                 vec4 tex22 = texture2D(textureSampler, texCoords + vec2(0.0, 0.0));
                 vec4 tex32 = texture2D(textureSampler, texCoords + vec2(off.x, 0.0));
                 vec4 tex42 = texture2D(textureSampler, texCoords + vec2(off2.x, 0.0));
-
+            
                 vec4 tex03 = texture2D(textureSampler, texCoords + vec2(-off2.x, off.y));
                 vec4 tex13 = texture2D(textureSampler, texCoords + vec2(-off.x, off.y));
                 vec4 tex23 = texture2D(textureSampler, texCoords + vec2(0.0, off.y));
                 vec4 tex33 = texture2D(textureSampler, texCoords + vec2(off.x, off.y));
                 vec4 tex43 = texture2D(textureSampler, texCoords + vec2(off2.x, off.y));
-
+            
                 vec4 tex04 = texture2D(textureSampler, texCoords + vec2(-off2.x, off2.y));
                 vec4 tex14 = texture2D(textureSampler, texCoords + vec2(-off.x, off2.y));
                 vec4 tex24 = texture2D(textureSampler, texCoords + vec2(0.0, off2.y));
                 vec4 tex34 = texture2D(textureSampler, texCoords + vec2(off.x, off2.y));
                 vec4 tex44 = texture2D(textureSampler, texCoords + vec2(off2.x, off2.y));
-                
+            
                 vec4 tex = tex22;
                 vec4 blurred = 1.0 * tex00 + 4.0 * tex10 + 6.0 * tex20 + 4.0 * tex30 + 1.0 * tex40 + 4.0 * tex01 + 16.0 * tex11 + 24.0 * tex21 + 16.0 * tex31 + 4.0 * tex41 + 6.0 * tex02 + 24.0 * tex12 + 36.0 * tex22 + 24.0 * tex32 + 6.0 * tex42 + 4.0 * tex03 + 16.0 * tex13 + 24.0 * tex23 + 16.0 * tex33 + 4.0 * tex43 + 1.0 * tex04 + 4.0 * tex14 + 6.0 * tex24 + 4.0 * tex34 + 1.0 * tex44;
                 blurred /= 256.0;
-
-                tex += (tex - blurred) * sharpen;
-
-                // Saturation
+            
+                tex += (tex - blurred) * 0.0;
+            
                 vec3 desaturated = vec3(dot(saturationVector, tex.rgb));
-                vec3 mixed = mix(desaturated, tex.rgb, saturation);
+                vec3 mixed = mix(desaturated, tex.rgb, 1.27);
                 vec4 color = vec4(mixed, tex.a);
-
-                // Warmth
-                color.r += warmth;
-                color.b -= warmth;
-
-                // Contrast
-                color.rgb = (color.rgb - 0.5) * contrast + 0.5;
-
-                // Brightness
+            
+                color.r += 0.0;
+                color.b -= 0.0;
+            
+                color.rgb = (color.rgb - 0.5) * 1.2456666666666667 + 0.5;
+            
                 vec3 texColor = color.rgb;
                 float luminance = dot(texColor, saturationVector);
-                float adjustment = 1.0 + brightness * gaussian(luminance - 0.5);
+                float adjustment = 1.0 + 0.0 * gaussian(luminance - 0.5);
                 vec3 adjustedColor = texColor * adjustment * maxBrightness;
                 color.rgb = clamp(adjustedColor, 0.0, 1.0);
-
-                // Exposure
-                color.rgb = color.rgb * pow(2.0, exposure);
-
-                // Highlight
-                float highlightAdjustment = pow(luminance, highlight);
+            
+                color.rgb = color.rgb * pow(2.0, 0.0);
+            
+                float highlightAdjustment = pow(luminance, 0.0);
                 color.rgb *= highlightAdjustment;
-
-                // Shadow
+            
                 float colorValue = sqrt(pow(color.r, 2.0) + pow(color.g, 2.0) + pow(color.b, 2.0));
                 float canvasColorSpace = colorValue / sqrt(pow(255.0, 2.0) + pow(255.0, 2.0) + pow(255.0, 2.0));
                 if(canvasColorSpace < 0.5) {
-                    adjustedColor = vec3(color.r + shadow, color.g + shadow, color.b + shadow);
+                    adjustedColor = vec3(color.r + -0.02375, color.g + -0.02375, color.b + -0.02375);
                 }
                 color.rgb = clamp(adjustedColor, 0.0, 1.0);
-
-                // Tint
+            
                 float redTint = 0.0;
                 float greenTint = 0.0;
-                if (tint > 0.0) {
-                    redTint = tint;
-                } else if (tint < 0.0) {
-                    greenTint = -tint;
+                if(-0.06 > 0.0) {
+                    redTint = -0.06;
+                } else if(-0.06 < 0.0) {
+                    greenTint = 0.06;
                 }
                 color.r += redTint;
                 color.g += greenTint;
                 color.b += (redTint - greenTint) / 2.0;
                 color.rgb = clamp(color.rgb, 0.0, 1.0);
-
-                // GreyScale
-                if(greyScale == 1.0){
-                    color.rgb = vec3(color.r*redChannelWeight + color.g*greenChannelWeight + color.b*blueChannelWeight);
+            
+                if(false) {
+                    color.rgb = vec3(color.r * 0.33 + color.g * 0.33 + color.b * 0.33);
                 }
+            
+                float hazeColor = dot(color.rgb, vec3(1.0));
+                float atmosphericLight = hazeColor * 0.0;
+                color.rgb = color.rgb - atmosphericLight;
+                color.rgb = clamp(color.rgb, 0.0, 1.0);
+            
                 gl_FragColor = color;
-            }
+            }    
             `;
 
             const vertexShader = gl.createShader(gl.VERTEX_SHADER);
@@ -287,7 +270,7 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
 
             const positionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-            setRectangle(gl, 0, 0, image.width, image.height);
+            setRectangle(gl, 300, 0, image.width, image.height);
 
             let texCoordBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
@@ -387,7 +370,7 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
             gl.uniform1f(warmthLocation, warmth / 500);
 
             const hueLocation = gl.getUniformLocation(shaderProgram, "tint");
-            gl.uniform1f(hueLocation, tint / 1000);
+            gl.uniform1f(hueLocation, tint / 500);
 
             const shadowLocation = gl.getUniformLocation(
                 shaderProgram,
@@ -399,7 +382,7 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
                 shaderProgram,
                 "saturation"
             );
-            gl.uniform1f(saturationLocation, saturation / 100 + 1);
+            gl.uniform1f(saturationLocation, saturation / 100 + 1.0);
 
             const highlightLocation = gl.getUniformLocation(
                 shaderProgram,
@@ -412,6 +395,12 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
                 "exposure"
             );
             gl.uniform1f(exposureLocation, exposure / 200);
+
+            const dehazeLocation = gl.getUniformLocation(
+                shaderProgram,
+                "dehaze"
+            );
+            gl.uniform1f(dehazeLocation, dehaze / 500);
 
             const greyScaleLocation = gl.getUniformLocation(
                 shaderProgram,
@@ -454,6 +443,7 @@ const Canvas: React.FC<WebGLCanvasProps> = ({
         redChannelWeight,
         greenChannelWeight,
         blueChannelWeight,
+        dehaze,
     ]);
 
     return (

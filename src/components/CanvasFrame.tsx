@@ -16,6 +16,7 @@ export interface Props {
     redChannelWeight: number;
     greenChannelWeight: number;
     blueChannelWeight: number;
+    dehaze: number
 }
 
 const CanvasFrame: React.FC<Props> = ({
@@ -32,11 +33,12 @@ const CanvasFrame: React.FC<Props> = ({
     redChannelWeight,
     greenChannelWeight,
     blueChannelWeight,
+    dehaze
 }) => {
     return (
         <div className="frame">
             <Canvas
-                imageUrl="http://localhost:8080/IMG_20230104_162445_714.jpg"
+                imageUrl="http://localhost:8080/RPS05261-2.jpg"
                 brightness={brightness}
                 contrast={contrast}
                 sharpen={sharpness}
@@ -50,6 +52,7 @@ const CanvasFrame: React.FC<Props> = ({
                 redChannelWeight={redChannelWeight}
                 greenChannelWeight={greenChannelWeight}
                 blueChannelWeight={blueChannelWeight}
+                dehaze={dehaze}
             />
         </div>
     );
